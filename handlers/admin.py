@@ -74,3 +74,45 @@ async def welcome_edit(callback: CallbackQuery):
     )
 
     await callback.answer()
+
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
+from database.sqlite import set_setting
+
+
+class WelcomeEdit(StatesGroup):
+    text = State()
+
+
+@router.callback_query(F.data == "welcome_edit")
+async def welcome_button(callback: CallbackQuery, state: FSMContext):
+
+    if callback.from_user.id != ADMIN_ID:
+        return
+
+    await callback.message.answer(
+        "📝 Отправь новый текст приветствия BLTZ:"
+    )
+
+    await state.set_state(WelcomeEdit.text)
+
+    await callback.answer()
+
+
+
+@router.message(WelcomeEdit.text)
+async def save_welcome(message: Message, state: FSMContext):
+
+    if message.from_user.id != ADMIN_ID:
+        return
+
+    await set_setting(
+        "welcome",
+        message.text
+    )
+
+    await message.answer(
+        "✅ Приветствие BLTZ изменено!"
+    )
+
+    await state.clear()
