@@ -1,6 +1,6 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from config import ADMIN_ID
 
@@ -23,13 +23,7 @@ async def panel(message: Message):
             ],
             [
                 InlineKeyboardButton(
-                    text="📢 Рассылка",
-                    callback_data="broadcast"
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📝 Редактор приветствия",
+                    text="📝 Изменить приветствие",
                     callback_data="welcome_edit"
                 )
             ],
@@ -46,3 +40,26 @@ async def panel(message: Message):
         "👑 <b>Админ-панель BLTZ</b>",
         reply_markup=keyboard
     )
+
+
+@router.callback_query(F.data == "stats")
+async def stats(callback: CallbackQuery):
+
+    await callback.message.answer(
+        "📊 Статистика BLTZ\n\n"
+        "👥 Пользователи: скоро\n"
+        "📋 Заявки: скоро"
+    )
+
+    await callback.answer()
+
+
+@router.callback_query(F.data == "welcome_edit")
+async def welcome_edit(callback: CallbackQuery):
+
+    await callback.message.answer(
+        "📝 Редактор приветствия\n\n"
+        "Скоро здесь можно будет изменить текст приветствия."
+    )
+
+    await callback.answer()
