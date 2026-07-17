@@ -1,3 +1,5 @@
+from database.sqlite import set_setting
+
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
@@ -60,6 +62,15 @@ async def welcome_edit(callback: CallbackQuery):
     await callback.message.answer(
         "📝 Редактор приветствия\n\n"
         "Скоро здесь можно будет изменить текст приветствия."
+    )
+
+    await callback.answer()
+
+@router.callback_query(F.data == "welcome_edit")
+async def welcome_edit(callback: CallbackQuery):
+
+    await callback.message.answer(
+        "📝 Отправь новый текст приветствия:"
     )
 
     await callback.answer()
