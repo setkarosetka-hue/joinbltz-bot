@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from config import ADMIN_ID
-
+from database.sqlite import add_application
 
 router = Router()
 
@@ -19,7 +19,7 @@ class Application(StatesGroup):
 async def apply_start(callback: CallbackQuery, state: FSMContext):
 
     await callback.message.answer(
-        "🎮 Напиши свой Roblox Username:"
+        "🎮 Введи свой Roblox Username:"
     )
 
     await state.set_state(Application.username)
@@ -27,7 +27,7 @@ async def apply_start(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(Application.username)
-async def username(message: Message, state: FSMContext):
+async def get_username(message: Message, state: FSMContext):
 
     await state.update_data(
         username=message.text
@@ -41,23 +41,30 @@ async def username(message: Message, state: FSMContext):
 
 
 @router.message(Application.age)
-async def age(message: Message, state: FSMContext):
+async def get_age(message: Message, state: FSMContext):
 
     await state.update_data(
         age=message.text
     )
 
     await message.answer(
-        "📝 Расскажи о себе:"
+        "📝 Расскажи немного о себе:"
     )
 
     await state.set_state(Application.about)
 
 
 @router.message(Application.about)
-async def about(message: Message, state: FSMContext):
+async def get_about(message: Message, state: FSMContext):
 
     data = await state.get_data()
+
+    await add_application(
+        message.from_user.id,
+        data["username"],
+        data["age"],
+        message.text
+    )
 
     text = (
         "📥 <b>Новая заявка BLTZ</b>\n\n"
@@ -67,17 +74,14 @@ async def about(message: Message, state: FSMContext):
         f"👤 Telegram: @{message.from_user.username}"
     )
 
-
     await message.bot.send_message(
         ADMIN_ID,
         text
     )
 
-
     await message.answer(
-        "✅ Заявка отправлена администрации BLTZ!"
+        "✅ Заявка отправлена!\n"
+        "Ожидай решения администрации BLTZ."
     )
 
     await state.clear()
-
- 
