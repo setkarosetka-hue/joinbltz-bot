@@ -6,6 +6,8 @@ from aiogram.client.default import DefaultBotProperties
 
 from config import BOT_TOKEN
 
+print("BOT_TOKEN =", BOT_TOKEN)
+
 from database.sqlite import create_db
 
 from handlers.start import router as start_router
