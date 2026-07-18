@@ -1,5 +1,5 @@
 from aiogram import Router
-from aiogram.types import Message, FSInputFile
+from aiogram.types import Message
 from aiogram.filters import Command
 
 from keyboards.user import main_menu
@@ -23,13 +23,7 @@ async def start(message: Message):
         )
 
 
-    photo = FSInputFile(
-        "image/bltz_logo.png"
-    )
-
-
-    await message.answer_photo(
-        photo=photo,
-        caption=welcome,
+    await message.answer(
+        text=welcome,
         reply_markup=main_menu()
     )
