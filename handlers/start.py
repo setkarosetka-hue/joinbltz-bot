@@ -24,7 +24,7 @@ async def start(message: Message):
 
 
     photo = FSInputFile(
-        "images/bltz_logo.png"
+        "image/bltz_logo.png"
     )
 
 
