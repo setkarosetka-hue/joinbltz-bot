@@ -3,10 +3,16 @@ from database.sqlite import set_setting
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.context import FSMContext
 
 from config import ADMIN_ID
 
 router = Router()
+
+
+class WelcomeEdit(StatesGroup):
+    text = State()
 
 
 @router.message(Command("panel"))
@@ -25,7 +31,13 @@ async def panel(message: Message):
             ],
             [
                 InlineKeyboardButton(
-                    text="📝 Изменить приветствие",
+                    text="📢 Рассылка",
+                    callback_data="broadcast"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⚙️ Редактор приветствия",
                     callback_data="welcome_edit"
                 )
             ],
@@ -44,11 +56,30 @@ async def panel(message: Message):
     )
 
 
+@router.callback_query(F.data == "applications")
+async def applications(callback: CallbackQuery):
+
+    if callback.from_user.id != ADMIN_ID:
+        await callback.answer("❌ Доступ запрещен", show_alert=True)
+        return
+
+    await callback.message.answer(
+        "📋 <b>Заявки BLTZ</b>\n\n"
+        "Скоро здесь можно будет просмотреть и обработать заявки."
+    )
+
+    await callback.answer()
+
+
 @router.callback_query(F.data == "stats")
 async def stats(callback: CallbackQuery):
 
+    if callback.from_user.id != ADMIN_ID:
+        await callback.answer("❌ Доступ запрещен", show_alert=True)
+        return
+
     await callback.message.answer(
-        "📊 Статистика BLTZ\n\n"
+        "📊 <b>Статистика BLTZ</b>\n\n"
         "👥 Пользователи: скоро\n"
         "📋 Заявки: скоро"
     )
@@ -56,38 +87,26 @@ async def stats(callback: CallbackQuery):
     await callback.answer()
 
 
-@router.callback_query(F.data == "welcome_edit")
-async def welcome_edit(callback: CallbackQuery):
+@router.callback_query(F.data == "broadcast")
+async def broadcast(callback: CallbackQuery):
+
+    if callback.from_user.id != ADMIN_ID:
+        await callback.answer("❌ Доступ запрещен", show_alert=True)
+        return
 
     await callback.message.answer(
-        "📝 Редактор приветствия\n\n"
-        "Скоро здесь можно будет изменить текст приветствия."
+        "📢 <b>Рассылка</b>\n\n"
+        "Скоро здесь можно будет отправить рассылку пользователям."
     )
 
     await callback.answer()
-
-@router.callback_query(F.data == "welcome_edit")
-async def welcome_edit(callback: CallbackQuery):
-
-    await callback.message.answer(
-        "📝 Отправь новый текст приветствия:"
-    )
-
-    await callback.answer()
-
-from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.context import FSMContext
-from database.sqlite import set_setting
-
-
-class WelcomeEdit(StatesGroup):
-    text = State()
 
 
 @router.callback_query(F.data == "welcome_edit")
 async def welcome_button(callback: CallbackQuery, state: FSMContext):
 
     if callback.from_user.id != ADMIN_ID:
+        await callback.answer("❌ Доступ запрещен", show_alert=True)
         return
 
     await callback.message.answer(
@@ -97,7 +116,6 @@ async def welcome_button(callback: CallbackQuery, state: FSMContext):
     await state.set_state(WelcomeEdit.text)
 
     await callback.answer()
-
 
 
 @router.message(WelcomeEdit.text)
