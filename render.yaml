@@ -3,5 +3,5 @@ services:
     name: joinbltz-bot
     env: python
     pythonVersion: 3.11
-    buildCommand: pip install --only-binary :all: -r requirements.txt
+    buildCommand: pip install --only-binary :all: --no-build-isolation -r requirements.txt
     startCommand: python bot.py
